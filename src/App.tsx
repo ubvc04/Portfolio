@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { CSSProperties, FormEvent } from 'react'
 import './App.css'
+import heroImage from './assets/hero.png'
 
 type Project = { name: string; description: string; stack: string; status: string; visibility: string; link?: string; featured?: boolean }
 
@@ -54,6 +55,7 @@ function ProjectOrbit() {
         <div className="orbit-ring ring-three" />
         <div className="orbit-crosshair crosshair-x" />
         <div className="orbit-crosshair crosshair-y" />
+        <img className="orbit-emblem" src={heroImage} alt="" />
         <div className="orbit-core"><span>BUILD</span><strong>{String(selectedProject + 1).padStart(2, '0')}</strong></div>
         {projects.map((project, index) => <button className={selectedProject === index ? 'orbit-node selected' : 'orbit-node'} key={project.name} style={orbitPositions[index] as CSSProperties} onClick={() => setSelectedProject(index)} aria-label={`Show ${project.name}`}><span>{String(index + 1).padStart(2, '0')}</span></button>)}
       </div>

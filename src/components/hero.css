@@ -121,32 +121,7 @@
   animation-delay: calc(var(--i) * 0.055s);
 }
 
-/* Hover glitch: quick, tasteful, never continuous */
-.name::before,
-.name::after {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.name::before {
-  color: var(--green);
-}
-
-.name::after {
-  color: var(--green-soft);
-}
-
-.name.revealed:hover::before {
-  animation: glitch-a 0.32s steps(2, end) 1;
-}
-
-.name.revealed:hover::after {
-  animation: glitch-b 0.32s steps(2, end) 1;
-}
+/* Hover scramble is driven by JS (character swap); glow stays CSS */
 
 /* ---------- Role ---------- */
 
@@ -224,6 +199,11 @@
   .socials {
     opacity: 1;
     transform: none;
+    animation: none;
+  }
+
+  .cursor {
+    opacity: 1;
     animation: none;
   }
 }

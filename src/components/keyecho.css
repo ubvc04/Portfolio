@@ -1,0 +1,36 @@
+.keyecho {
+  position: fixed;
+  left: clamp(16px, 4vw, 40px);
+  bottom: clamp(16px, 4vh, 32px);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  pointer-events: none;
+  font: 400 0.62rem/1.4 var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--green);
+}
+
+.keyecho-line {
+  opacity: 0;
+  animation: keyecho-in 1.4s ease-out forwards;
+}
+
+@keyframes keyecho-in {
+  0% {
+    opacity: 0.75;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keyecho {
+    display: none;
+  }
+}

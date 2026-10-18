@@ -10,7 +10,9 @@ export default function Nav() {
   return (
     <nav className="nav" aria-label="Primary">
       <a className="brand" href="#home" onClick={handleClick}>
-        <span className="brand-mark">&gt;_</span> bavesh
+        <span className="brand-mark">&gt;</span>
+        <i className="brand-cursor" aria-hidden="true" />
+        <span className="brand-text">bavesh</span>
       </a>
 
       <ul className="nav-links">

@@ -27,13 +27,4 @@ const localFormatter = new Intl.DateTimeFormat('en-GB', {
   hour12: false,
 })
 
-const cktFormatter = new Intl.DateTimeFormat('en-GB', {
-  timeZone: 'Pacific/Rarotonga',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  hour12: false,
-})
-
 export const formatLocalTime = (date: Date) => localFormatter.format(date)
-export const formatCookIslandsTime = (date: Date) => cktFormatter.format(date)

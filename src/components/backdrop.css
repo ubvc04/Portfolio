@@ -33,6 +33,79 @@
   }
 }
 
+/* Faint hex/command data streams drifting across the screen */
+.stream {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font: 400 0.6rem/1 var(--mono);
+  letter-spacing: 0.22em;
+  color: var(--green);
+}
+
+.stream--top {
+  top: 15%;
+  opacity: 0.05;
+}
+
+.stream--bottom {
+  bottom: 11%;
+  opacity: 0.04;
+}
+
+.stream span {
+  display: inline-block;
+  padding-right: 100vw;
+  animation: stream-left 110s linear infinite;
+}
+
+.stream--bottom span {
+  animation: stream-right 130s linear infinite;
+}
+
+@keyframes stream-left {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes stream-right {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Drifting code fragments */
+.fragments {
+  position: absolute;
+  inset: 0;
+}
+
+.fragments i {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  color: var(--green);
+  font: 400 var(--size)/1 var(--mono);
+  opacity: var(--opacity);
+  animation: fragment-drift var(--dur) ease-in-out infinite alternate;
+}
+
+@keyframes fragment-drift {
+  to {
+    transform: translate3d(12px, -46px, 0) rotate(4deg);
+    opacity: calc(var(--opacity) * 0.4);
+  }
+}
+
 /* Tiny drifting particles */
 .particles {
   position: absolute;
@@ -92,6 +165,8 @@
   .rain,
   .ambient,
   .particles,
+  .fragments,
+  .stream,
   .glitch-flash {
     display: none;
   }

@@ -1,6 +1,7 @@
 import './App.css'
 import Backdrop from './components/Backdrop'
 import CursorGlow from './components/Cursor'
+import Keyecho from './components/Keyecho'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
 import { EMAIL, GITHUB_URL } from './data'
@@ -10,6 +11,7 @@ function App() {
     <div className="shell">
       <Backdrop />
       <CursorGlow />
+      <Keyecho />
       <Nav />
 
       <main>

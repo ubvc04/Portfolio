@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react'
-import type { CSSProperties } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties, PointerEvent } from 'react'
 import './hero.css'
 import { BOOT_LINES, EMAIL, GITHUB_URL, NAME } from '../data'
-import {
-  formatCookIslandsTime,
-  formatLocalTime,
-  prefersReducedMotion,
-  useClock,
-} from '../hooks'
+import { formatLocalTime, hasFinePointer, prefersReducedMotion, useClock } from '../hooks'
 
 const rand = (min: number, max: number) => min + Math.random() * (max - min)
+
+const SCRAMBLE_GLYPHS = '01ABCDEF{}[]<>/=;$#*_'
+
+const canInteract = hasFinePointer() && !prefersReducedMotion()
 
 /** Types the boot lines in sequence, once. Instant when motion is reduced. */
 function useBootSequence(lines: string[]) {
@@ -25,16 +24,17 @@ function useBootSequence(lines: string[]) {
     let charIndex = 0
     let timer = 0
     const scratch: string[] = ['']
+    const source = lines
 
     const step = () => {
       if (cancelled) return
-      const target = lines[lineIndex]
+      const target = source[lineIndex]
       if (charIndex <= target.length) {
         scratch[lineIndex] = target.slice(0, charIndex)
         setOutput([...scratch])
         charIndex += 1
         timer = window.setTimeout(step, rand(28, 72))
-      } else if (lineIndex < lines.length - 1) {
+      } else if (lineIndex < source.length - 1) {
         lineIndex += 1
         charIndex = 0
         scratch[lineIndex] = ''
@@ -54,10 +54,50 @@ function useBootSequence(lines: string[]) {
   return { output, done }
 }
 
-/** Hero: boot-up log, name reveal, role, socials and the system status panel. */
+/** Hero: boot-up log, name reveal with hover scramble, role, socials, status panel. */
 export default function Hero() {
   const { output, done } = useBootSequence(BOOT_LINES)
   const now = useClock()
+
+  const [chars, setChars] = useState<string[]>(() => NAME.split(''))
+  const scrambling = useRef(false)
+
+  /* Matrix-style scramble on hover: glyphs churn, then settle left-to-right. */
+  const scrambleName = () => {
+    if (!canInteract || scrambling.current) return
+    scrambling.current = true
+    const target = NAME.split('')
+    let frame = 0
+    const id = window.setInterval(() => {
+      frame += 1
+      const settled = Math.floor(frame / 2)
+      if (settled > target.length) {
+        window.clearInterval(id)
+        setChars(target)
+        scrambling.current = false
+        return
+      }
+      setChars(
+        target.map((char, i) =>
+          i < settled ? char : SCRAMBLE_GLYPHS[Math.floor(Math.random() * SCRAMBLE_GLYPHS.length)],
+        ),
+      )
+    }, 45)
+  }
+
+  /* Magnetic pull: social icons lean a few pixels toward the pointer. */
+  const magnet = (event: PointerEvent<HTMLElement>) => {
+    if (!canInteract) return
+    const el = event.currentTarget
+    const rect = el.getBoundingClientRect()
+    const dx = event.clientX - (rect.left + rect.width / 2)
+    const dy = event.clientY - (rect.top + rect.height / 2)
+    el.style.transform = `translate(${(dx * 0.16).toFixed(1)}px, ${(dy * 0.16).toFixed(1)}px) scale(1.07)`
+  }
+
+  const demagnet = (event: PointerEvent<HTMLElement>) => {
+    event.currentTarget.style.transform = ''
+  }
 
   return (
     <section className="hero" id="home">
@@ -70,10 +110,6 @@ export default function Hero() {
           <span className="status-label">local</span>
           {formatLocalTime(now)}
         </span>
-        <span className="status-row status-time" aria-hidden="true">
-          <span className="status-label">ckt</span>
-          {formatCookIslandsTime(now)}
-        </span>
       </aside>
 
       <div className="hero-content">
@@ -81,10 +117,12 @@ export default function Hero() {
           {output.map((line, i) => (
             <span key={i} className="boot-line">
               <span className="boot-glyph">&gt;</span> {line}
-              {i === output.length - 1 && !done ? (
-                <span className="cursor cursor--hidden" />
-              ) : i === output.length - 1 ? (
-                <span className="cursor" />
+              {i === output.length - 1 ? (
+                done ? (
+                  <span className="cursor" />
+                ) : (
+                  <span className="cursor cursor--hidden" />
+                )
               ) : null}
             </span>
           ))}
@@ -93,8 +131,12 @@ export default function Hero() {
           {'> initializing_system... > software_engineer.init()'}
         </span>
 
-        <h1 className={done ? 'name revealed' : 'name'} data-text={NAME} aria-label={NAME}>
-          {NAME.split('').map((char, i) => (
+        <h1
+          className={done ? 'name revealed' : 'name'}
+          aria-label={NAME}
+          onMouseEnter={scrambleName}
+        >
+          {chars.map((char, i) => (
             <span
               key={i}
               className="char"
@@ -116,6 +158,8 @@ export default function Hero() {
             rel="noreferrer"
             aria-label="GitHub profile"
             title="GitHub"
+            onPointerMove={magnet}
+            onPointerLeave={demagnet}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
               <path
@@ -129,6 +173,8 @@ export default function Hero() {
             href={`mailto:${EMAIL}`}
             aria-label="Send an email"
             title="Email"
+            onPointerMove={magnet}
+            onPointerLeave={demagnet}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
               <path

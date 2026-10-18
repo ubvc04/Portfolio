@@ -20,6 +20,23 @@ const PARTICLES = [
 
 const TRAIL = 6
 
+/** Tiny code fragments that drift through the background. */
+const FRAGMENTS = [
+  { text: '< />', x: 12, y: 22, dur: 34, size: 0.62, opacity: 0.1 },
+  { text: '{ }', x: 26, y: 64, dur: 40, size: 0.7, opacity: 0.08 },
+  { text: '=>', x: 40, y: 16, dur: 30, size: 0.66, opacity: 0.09 },
+  { text: '0x7F', x: 55, y: 72, dur: 44, size: 0.6, opacity: 0.1 },
+  { text: 'fn()', x: 66, y: 34, dur: 36, size: 0.64, opacity: 0.08 },
+  { text: '&&', x: 76, y: 82, dur: 32, size: 0.72, opacity: 0.09 },
+  { text: 'git', x: 86, y: 24, dur: 42, size: 0.6, opacity: 0.07 },
+  { text: '</>', x: 92, y: 58, dur: 38, size: 0.68, opacity: 0.1 },
+]
+
+/** Ultra-faint hex/command stream for the marquee strips. */
+const STREAM =
+  '0x4D6174726978 · git push · systemctl status · SELECT * · npm run build · 01101001 · docker ps · grep -r · chmod +x · 0x41C0 · curl -s · ssh visitor · pip install · make deploy · 0xBEEF · ls -la · cat /etc/os · git commit · 0x7F3A · unit_test() · compile() · deploy.sh · stack --help · 0x00FF · fork() · render() · 0x5AFE · '
+
+
 /** Canvas digital rain + ambient glow + drifting particles + glitch flashes. */
 export default function Backdrop() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -137,6 +154,33 @@ export default function Backdrop() {
     <div className="backdrop" aria-hidden="true">
       <canvas ref={canvasRef} className="rain" />
       <div className="ambient" />
+
+      <div className="stream stream--top">
+        <span>{STREAM + STREAM}</span>
+      </div>
+      <div className="stream stream--bottom">
+        <span>{STREAM + STREAM}</span>
+      </div>
+
+      <div className="fragments">
+        {FRAGMENTS.map((fragment, i) => (
+          <i
+            key={i}
+            style={
+              {
+                '--x': `${fragment.x}%`,
+                '--y': `${fragment.y}%`,
+                '--dur': `${fragment.dur}s`,
+                '--size': `${fragment.size}rem`,
+                '--opacity': fragment.opacity,
+              } as CSSProperties
+            }
+          >
+            {fragment.text}
+          </i>
+        ))}
+      </div>
+
       <div className="particles">
         {PARTICLES.map((p, i) => (
           <i

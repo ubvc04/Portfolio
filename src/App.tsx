@@ -1,88 +1,102 @@
-import { useState } from 'react'
-import type { CSSProperties, FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
-import heroImage from './assets/hero.png'
 
-type Project = { name: string; description: string; stack: string; status: string; visibility: string; link?: string; featured?: boolean }
+const COMMAND = '> building_secure_things.exe'
+const GITHUB_URL = 'https://github.com/ubvc04'
 
-const projects: Project[] = [
-  { name: 'InvestTrack', description: 'Private Java project in active development for tracking investments with a cleaner view of financial decisions.', stack: 'Java', status: 'ACTIVE', visibility: 'PRIVATE', link: 'https://github.com/ubvc04/InvestTrack', featured: true },
-  { name: 'Self-healing-infrastructure', description: 'An exploration of resilient infrastructure patterns and automated recovery workflows.', stack: 'Go', status: 'RESEARCH', visibility: 'PUBLIC', link: 'https://github.com/ubvc04/self-healing-infrastructure' },
-  { name: 'Intrusion-Detection-System', description: 'Hybrid HIDS and NIDS concept for monitoring system events and network traffic in real time.', stack: 'Python / Security', status: 'LAB', visibility: 'PRIVATE', link: 'https://github.com/ubvc04/Intrusion-Detection-System' },
-  { name: 'Smart-Attendance-System', description: 'Face-recognition attendance workflow with an admin panel and local data storage.', stack: 'HTML / Flask / SQLite', status: 'SHIPPED', visibility: 'PUBLIC', link: 'https://github.com/ubvc04/Smart-Attendance-System' },
-  { name: 'SignLang-AI', description: 'Real-time sign language to text translator using webcam input and a CNN classifier.', stack: 'Python / OpenCV', status: 'SHIPPED', visibility: 'PUBLIC', link: 'https://github.com/ubvc04/SignLang-AI' },
-  { name: 'Custom-HTTP-Server', description: 'A low-level private project for understanding HTTP fundamentals through implementation.', stack: 'C', status: 'BUILDING', visibility: 'PRIVATE' },
-]
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-const skills = ['Java / Spring Boot', 'Angular / TypeScript', 'REST APIs / JWT', 'MySQL / SQL', 'Linux / Bash', 'Security tooling']
-const commandOutput: Record<string, string[]> = {
-  about: ['Bavesh Chowdary', 'Full-stack developer + cybersecurity learner', 'Building software with curiosity and care.'],
-  skills: ['Java', 'Spring Boot', 'Angular', 'TypeScript', 'MySQL', 'Linux', 'Shell scripting', 'Cybersecurity'],
-  projects: projects.map((project) => `${project.name}  ::  ${project.status}`),
-  security: ['Linux CLI        [████████░░]', 'Shell scripting  [███████░░░]', 'Networking       [██████░░░░]', 'Web security     [██████░░░░]', 'Automation       [███████░░░]'],
-  opensource: ['Open to learning from and contributing to meaningful tools.', 'Focus: Java, web platforms, security automation.'],
-  github: ['github.com/ubvc04', 'Public repositories are linked throughout this page.', 'No activity is fabricated here.'],
-  contact: ['Email: baveshchowdary1@gmail.com', 'GitHub: github.com/ubvc04'],
+/** Types out `text` one character at a time. Shows it instantly when motion is reduced. */
+function useTypewriter(text: string, speed = 45) {
+  const [typed, setTyped] = useState(() => (prefersReducedMotion() ? text : ''))
+
+  useEffect(() => {
+    if (prefersReducedMotion()) return
+    let index = 0
+    const id = window.setInterval(() => {
+      index += 1
+      setTyped(text.slice(0, index))
+      if (index >= text.length) window.clearInterval(id)
+    }, speed)
+    return () => window.clearInterval(id)
+  }, [text, speed])
+
+  return typed
 }
 
-const orbitPositions = [
-  { left: '16%', top: '24%' },
-  { left: '78%', top: '18%' },
-  { left: '84%', top: '63%' },
-  { left: '55%', top: '82%' },
-  { left: '14%', top: '72%' },
-  { left: '47%', top: '12%' },
-]
+/** Current UTC time as HH:MM:SS, refreshed every second. */
+function useUtcClock() {
+  const [time, setTime] = useState(() => new Date().toISOString().slice(11, 19))
 
-function ProjectOrbit() {
-  const [selectedProject, setSelectedProject] = useState(0)
-  const selected = projects[selectedProject]
+  useEffect(() => {
+    const id = window.setInterval(
+      () => setTime(new Date().toISOString().slice(11, 19)),
+      1000,
+    )
+    return () => window.clearInterval(id)
+  }, [])
 
-  const moveOrbit = (event: React.PointerEvent<HTMLDivElement>) => {
-    const bounds = event.currentTarget.getBoundingClientRect()
-    const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 2
-    const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 2
-    event.currentTarget.style.setProperty('--pointer-x', `${x * 10}px`)
-    event.currentTarget.style.setProperty('--pointer-y', `${y * 10}px`)
-  }
-
-  return (
-    <div className="project-orbit" onPointerMove={moveOrbit} onPointerLeave={(event) => { event.currentTarget.style.setProperty('--pointer-x', '0px'); event.currentTarget.style.setProperty('--pointer-y', '0px') }}>
-      <div className="orbit-heading"><span>LIVE PROJECT MAP</span><span><i /> SCANNING</span></div>
-      <div className="orbit-stage">
-        <div className="orbit-ring ring-one" />
-        <div className="orbit-ring ring-two" />
-        <div className="orbit-ring ring-three" />
-        <div className="orbit-crosshair crosshair-x" />
-        <div className="orbit-crosshair crosshair-y" />
-        <img className="orbit-emblem" src={heroImage} alt="" />
-        <div className="orbit-core"><span>BUILD</span><strong>{String(selectedProject + 1).padStart(2, '0')}</strong></div>
-        {projects.map((project, index) => <button className={selectedProject === index ? 'orbit-node selected' : 'orbit-node'} key={project.name} style={orbitPositions[index] as CSSProperties} onClick={() => setSelectedProject(index)} aria-label={`Show ${project.name}`}><span>{String(index + 1).padStart(2, '0')}</span></button>)}
-      </div>
-      <div className="orbit-readout"><div><span className="orbit-label">SELECTED / 0{selectedProject + 1}</span><h3>{selected.name}</h3><p>{selected.stack} <b>·</b> {selected.status}</p></div>{selected.link && <a href={selected.link} target="_blank" rel="noreferrer" aria-label={`Open ${selected.name} repository`}>↗</a>}</div>
-    </div>
-  )
+  return time
 }
 
 function App() {
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [terminalInput, setTerminalInput] = useState('')
-  const [terminalLines, setTerminalLines] = useState<string[]>(['visitor@bavesh:~$ help', 'Try: about, skills, projects, security, github, contact, clear'])
-  const runCommand = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const command = terminalInput.trim().toLowerCase(); if (!command) return; if (command === 'clear') setTerminalLines([]); else setTerminalLines((lines) => [...lines, `visitor@bavesh:~$ ${command}`, ...(commandOutput[command] ?? [`command not found: ${command}`, 'Type help for available commands.'])]); setTerminalInput('') }
+  const typed = useTypewriter(COMMAND)
+  const time = useUtcClock()
+  const typingDone = typed.length === COMMAND.length
 
   return (
-    <div className="app-shell">
-      <header className="topbar"><a className="brand" href="#home"><span className="brand-mark">&gt;_</span> BAVES<span className="muted">.dev</span></a><button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation">{menuOpen ? '×' : '☰'}</button><nav className={menuOpen ? 'nav-links open' : 'nav-links'}>{['about', 'stack', 'projects', 'security', 'opensource'].map((item) => <a key={item} href={`#${item}`} onClick={() => setMenuOpen(false)}>{item}</a>)}<a href="mailto:baveshchowdary1@gmail.com">connect</a></nav><div className="system-status"><span /> SYSTEM ONLINE</div></header>
-      <main>
-        <section className="hero section-wrap" id="home"><div className="hero-copy"><div className="eyebrow">PROJECT SHOWCASE / SOFTWARE + SECURITY</div><h1>Bavesh<br /><em>Chowdary</em></h1><p className="hero-lede">A working showcase of applications, experiments and systems I have built with Java, web technologies and security-minded thinking.</p><div className="hero-actions"><a className="button primary" href="#projects">Explore projects <span>↗</span></a><a className="button ghost" href="mailto:baveshchowdary1@gmail.com">Send an email <span>→</span></a></div><div className="hero-meta"><span><b>01</b> Applications</span><span><b>02</b> Systems</span><span><b>03</b> Security labs</span></div></div><div className="hero-visual"><ProjectOrbit /><div className="hero-terminal terminal-card"><div className="terminal-top"><span className="dots">● ● ●</span><span>~/home/portfolio</span><span>v1.0.26</span></div><div className="terminal-body"><p><span className="green">┌──[</span> visitor@bavesh <span className="green">]──[</span> ~/home <span className="green">]</span></p><p className="blank">│</p><p><span className="green">│ $</span> ls ./showcase</p><p><span className="green">│ &gt;</span> full-stack-apps/</p><p><span className="green">│ &gt;</span> security-labs/</p><p><span className="green">│ &gt;</span> experiments/</p><p className="blank">│</p><p><span className="green">│ $</span> status</p><p><span className="green">│ &gt;</span> Building. Learning. Securing.</p><p><span className="green">└───────────────</span><span className="cursor">_</span></p></div></div></div><div className="scroll-note">SCROLL TO EXPLORE <span>↓</span></div></section>
-        <section className="ticker"><div>BUILD <span>↓</span> SECURE <span>↓</span> LEARN <span>↓</span> AUTOMATE <span>↓</span> CONTRIBUTE</div></section>
-        <section className="section-wrap split-section" id="about"><div className="section-label">01 / ABOUT</div><div className="section-content"><p className="section-kicker">$ cat about_me.txt</p><h2>Curious about the layers<br /><span>beneath the interface.</span></h2><p className="body-copy">I am a full-stack developer focused on Java, Spring Boot and Angular. Alongside building applications, I explore Linux, shell scripting and cybersecurity through hands-on projects and command-line experimentation.</p><div className="info-grid"><div><span>ROLE</span><strong>Full Stack Developer</strong></div><div><span>BACKEND</span><strong>Java / Spring Boot</strong></div><div><span>FRONTEND</span><strong>Angular / TypeScript</strong></div><div><span>DATABASE</span><strong>MySQL / SQL</strong></div></div></div></section>
-        <section className="section-wrap stack-section" id="stack"><div className="section-label">02 / TOOLKIT</div><div className="section-content"><p className="section-kicker">$ ls -la /skills</p><h2>The tools I use to<br /><span>make things real.</span></h2><div className="skill-grid">{skills.map((name, index) => <div className="skill-row" key={name}><span className="skill-number">0{index + 1}</span><strong>{name}</strong></div>)}</div></div></section>
-        <section className="section-wrap projects-section" id="projects"><div className="section-label">03 / PROJECT SHOWCASE</div><div className="section-content"><div className="heading-row"><div><p className="section-kicker">$ find ./showcase -type f</p><h2>Things I have built,<br /><span>tested and shipped.</span></h2></div><a className="text-link" href="https://github.com/ubvc04" target="_blank" rel="noreferrer">View GitHub ↗</a></div><div className="project-grid">{projects.map((project, index) => <article className={project.featured ? 'project-card featured' : 'project-card'} key={project.name}><div className="project-top"><span>PROJECT_{String(index + 1).padStart(2, '0')}</span><span className={`status ${project.status.toLowerCase()}`}>● {project.status}</span></div><h3>{project.name}</h3><p>{project.description}</p><div className="project-bottom"><span>{project.stack}</span><span>{project.visibility}</span></div>{project.link && <a className="project-link" href={project.link} target="_blank" rel="noreferrer">Open repository ↗</a>}</article>)}</div></div></section>
-        <section className="section-wrap security-section" id="security"><div className="section-label">04 / SECURITY LAB</div><div className="section-content"><p className="section-kicker">$ ./security_profile.sh</p><div className="security-layout"><div><h2>Learn the system.<br /><span>Question the defaults.</span></h2><p className="body-copy">Cybersecurity is an active learning track for me: Linux CLI, networking, web security fundamentals, security automation and CTF-style problem solving. These are visual notes from the lab, not certifications or formal proficiency claims.</p><div className="lab-tags">{['Linux CLI', 'Bash scripting', 'Networking', 'Web application security', 'Log analysis', 'BlackArch Linux'].map((tag) => <span key={tag}>+ {tag}</span>)}</div></div><div className="meter-panel">{[['Linux CLI', 80], ['Shell scripting', 70], ['Networking', 60], ['Web security', 60], ['Automation', 70]].map(([label, width]) => <div className="meter" key={label as string}><div><span>{label}</span><span>{width}% / exploring</span></div><i><b style={{ width: `${width}%` }} /></i></div>)}</div></div></div></section>
-        <section className="section-wrap current-section" id="opensource"><div className="section-label">05 / CURRENTLY WORKING ON</div><div className="section-content"><p className="section-kicker">$ ps aux | grep projects</p><div className="current-card"><div className="current-icon">IT</div><div><div className="current-title"><h3>InvestTrack</h3><span className="status active">● ACTIVE</span></div><p>Building a private Java application for tracking investments and making portfolio decisions easier to inspect.</p><div className="current-tags"><span>Java</span><span>Private repository</span><span>Updated recently</span></div></div><a href="https://github.com/ubvc04/InvestTrack" target="_blank" rel="noreferrer" className="arrow-button">↗</a></div><div className="opensource-note"><span className="quote-mark">“</span><div><h3>Open source is a practice, not a badge.</h3><p>I am interested in contributing to useful projects, improving existing tools, learning from experienced developers, and collaborating on meaningful software.</p><a className="text-link" href="https://github.com/ubvc04" target="_blank" rel="noreferrer">Find me on GitHub ↗</a></div></div></div></section>
-        <section className="terminal-playground section-wrap"><div className="section-label">06 / PLAYGROUND</div><div className="section-content"><p className="section-kicker">$ ssh visitor@bavesh</p><div className="playground terminal-card"><div className="terminal-top"><span className="dots">● ● ●</span><span>visitor@bavesh:~</span><span>interactive</span></div><div className="playground-output">{terminalLines.map((line, index) => <div key={`${line}-${index}`} className={line.startsWith('visitor@') ? 'prompt-line' : ''}>{line}</div>)}</div><form onSubmit={runCommand} className="command-line"><span>visitor@bavesh:~$</span><input value={terminalInput} onChange={(event) => setTerminalInput(event.target.value)} aria-label="Terminal command" autoComplete="off" /><button aria-label="Run command">↵</button></form></div></div></section>
-      </main><footer className="footer"><span>$ echo "Keep building. Keep learning."</span><a href="mailto:baveshchowdary1@gmail.com">Send me an email ↗</a><span className="footer-status">SYSTEM STATUS: ONLINE ●</span></footer>
+    <div className="shell">
+      <main className="hero">
+        <p className="prompt fade-in" aria-hidden="true">
+          <span className="prompt-user">bavesh@portfolio</span>
+          <span className="prompt-sep">:</span>
+          <span className="prompt-path">~</span>
+          <span className="prompt-symbol">$</span> whoami
+        </p>
+
+        <h1 className="name">
+          <span className="name-line fade-in delay-1">Bavesh</span>
+          <span className="name-line fade-in delay-2">Chowdary</span>
+        </h1>
+
+        <p className="role fade-in delay-3">Software Engineer</p>
+
+        <p className="command fade-in delay-4">
+          <span className="sr-only">{COMMAND}</span>
+          <span aria-hidden="true">
+            <span className="command-glyph">&gt;</span> {typed}
+            <span className={typingDone ? 'cursor' : 'cursor cursor--hidden'} />
+          </span>
+        </p>
+
+        <nav className="links fade-in delay-5" aria-label="Social links">
+          <a
+            className="link"
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="GitHub profile"
+            title="GitHub"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M12 .5C5.73.5.99 5.24.99 11.52c0 4.86 3.15 8.98 7.52 10.44.55.1.75-.24.75-.53l-.02-1.86c-3.06.67-3.71-1.49-3.71-1.49-.5-1.28-1.23-1.62-1.23-1.62-1-.69.08-.67.08-.67 1.11.08 1.7 1.14 1.7 1.14.99 1.69 2.6 1.2 3.23.92.1-.72.39-1.2.7-1.48-2.44-.28-5.01-1.22-5.01-5.44 0-1.2.43-2.18 1.13-2.95-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.01 1.13a10.4 10.4 0 0 1 5.48 0c2.09-1.43 3.01-1.13 3.01-1.13.6 1.52.22 2.64.11 2.92.7.77 1.13 1.75 1.13 2.95 0 4.23-2.58 5.16-5.03 5.43.4.34.75 1.02.75 2.06l-.01 3.05c0 .29.2.64.76.53 4.36-1.46 7.51-5.58 7.51-10.44C23.01 5.24 18.27.5 12 .5Z"
+              />
+            </svg>
+          </a>
+        </nav>
+      </main>
+
+      <footer className="statusbar fade-in delay-5">
+        <span className="status">
+          <i className="status-dot" aria-hidden="true" />
+          system.ready
+        </span>
+        <span className="clock" aria-hidden="true">{time} UTC</span>
+      </footer>
     </div>
   )
 }

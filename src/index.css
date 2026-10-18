@@ -1,15 +1,16 @@
 :root {
-  --bg: #040605;
-  --panel: #070b09;
-  --green: #2bff88;
-  --green-soft: #9dffc6;
-  --green-dim: #1a8f56;
-  --text: #eafff2;
-  --muted: #84998c;
-  --line: rgba(43, 255, 136, 0.12);
+  --bg: #050706;
+  --green: #00ff88;
+  --green-soft: #a8ffd2;
+  --green-dim: rgba(0, 255, 136, 0.55);
+  --text: #f4f7f5;
+  --role: #d4ded8;
+  --muted: #8a9990;
+  --line: rgba(0, 255, 136, 0.14);
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
   color-scheme: dark;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -39,37 +40,45 @@ body {
   min-height: 100%;
 }
 
-/* Subtle terminal grid, faded toward the edges */
+/* Very subtle terminal grid, faded toward the edges */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(43, 255, 136, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(43, 255, 136, 0.04) 1px, transparent 1px);
-  background-size: 46px 46px;
-  -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 42%, #000 25%, transparent 78%);
-  mask-image: radial-gradient(ellipse 85% 65% at 50% 42%, #000 25%, transparent 78%);
+    linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 65% at 45% 42%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 85% 65% at 45% 42%, #000 25%, transparent 78%);
   pointer-events: none;
   z-index: 0;
+  animation: grid-drift 26s linear infinite;
 }
 
-/* Scanlines + soft neon glow + vignette */
+/* Seamless slow drift: the pattern repeats every 48px */
+@keyframes grid-drift {
+  to {
+    background-position: 48px 48px;
+  }
+}
+
+/* Faint scanlines + ambient green glow + vignette */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 4px),
-    radial-gradient(ellipse 70% 45% at 50% 0%, rgba(43, 255, 136, 0.08), transparent 60%),
-    radial-gradient(ellipse 100% 60% at 50% 110%, rgba(0, 0, 0, 0.5), transparent 65%);
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.014) 0 1px, transparent 1px 4px),
+    radial-gradient(ellipse 65% 45% at 42% 0%, rgba(0, 255, 136, 0.06), transparent 60%),
+    radial-gradient(ellipse 100% 60% at 50% 112%, rgba(0, 0, 0, 0.5), transparent 65%);
   pointer-events: none;
   z-index: 0;
 }
 
 ::selection {
-  background: rgba(43, 255, 136, 0.25);
-  color: #eafff2;
+  background: rgba(0, 255, 136, 0.22);
+  color: #f4f7f5;
 }
 
 .sr-only {

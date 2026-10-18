@@ -1,0 +1,98 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Digital rain */
+.rain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+}
+
+/* Ambient emerald glow drifting slowly across the page */
+.ambient {
+  position: absolute;
+  top: -22%;
+  left: -12%;
+  width: 72vmax;
+  height: 72vmax;
+  background: radial-gradient(circle, rgba(0, 255, 136, 0.05), transparent 60%);
+  animation: ambient-drift 28s ease-in-out infinite alternate;
+}
+
+@keyframes ambient-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(45vw, 25vh, 0) scale(1.15);
+  }
+}
+
+/* Tiny drifting particles */
+.particles {
+  position: absolute;
+  inset: 0;
+}
+
+.particles i {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--green);
+  opacity: var(--opacity);
+  animation: particle-drift var(--dur) ease-in-out infinite alternate;
+}
+
+@keyframes particle-drift {
+  to {
+    transform: translate3d(14px, -72px, 0);
+    opacity: calc(var(--opacity) * 0.35);
+  }
+}
+
+/* Brief digital-distortion flash: ambient every ~9-18s, and on navigation */
+.glitch-flash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0, 255, 136, 0.09) 0 2px, transparent 2px 6px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.05), transparent 30%, rgba(168, 255, 210, 0.04) 60%, transparent);
+  mix-blend-mode: screen;
+}
+
+.glitch-flash.active {
+  animation: glitch-flash 0.24s steps(2, end) 1;
+}
+
+@keyframes glitch-flash {
+  0% {
+    opacity: 0.85;
+    transform: translateX(-3px);
+  }
+  40% {
+    opacity: 0.4;
+    transform: translateX(2px);
+  }
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rain,
+  .ambient,
+  .particles,
+  .glitch-flash {
+    display: none;
+  }
+}

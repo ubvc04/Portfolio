@@ -1,0 +1,35 @@
+.cursor-glow {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 255, 136, 0.22), transparent 65%);
+  pointer-events: none;
+  z-index: 60;
+  transition: opacity 0.3s ease;
+  will-change: transform;
+}
+
+.cursor-glow--active {
+  background: radial-gradient(circle, rgba(0, 255, 136, 0.32), transparent 65%);
+  animation: cursor-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes cursor-pulse {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-glow {
+    display: none;
+  }
+}
